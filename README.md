@@ -1,37 +1,132 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GitHub Actions CI/CD with Next.js on AWS EC2
 
-## Getting Started
+This project is a Next.js application configured for deployment to an AWS EC2 instance using GitHub Actions and PM2.
 
-First, run the development server:
+## Project Overview
+
+- Framework: Next.js
+- Language: TypeScript
+- Styling: Tailwind CSS
+- Deployment target: AWS EC2
+- CI/CD: GitHub Actions
+- Process manager: PM2
+
+## Features
+
+- Modern Next.js app with a polished landing page
+- Production build support
+- Automated deployment from GitHub to EC2
+- Simple PM2-based process management
+
+## Local Development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Build the app:
 
-## Learn More
+```bash
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+Start the app locally:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## AWS EC2 Deployment Setup
 
-## Deploy on Vercel
+### 1. Launch an EC2 instance
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Create an Ubuntu or Amazon Linux EC2 instance and make sure these ports are open:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 22 for SSH
+- 80 for HTTP
+- 3000 for the Next.js app (optional if using a reverse proxy)
+
+### 2. Install required packages on the server
+
+```bash
+sudo apt update
+sudo apt install -y git curl
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo npm install -g pm2
+```
+
+### 3. Clone the repository on EC2
+
+```bash
+cd /home/ubuntu
+git clone https://github.com/<your-username>/<your-repo>.git
+cd <your-repo>
+npm install
+npm run build
+```
+
+### 4. Start the app with PM2
+
+```bash
+pm2 start npm --name "100devs-ci-cd" -- start
+pm2 save
+pm2 startup systemd
+```
+
+## GitHub Actions Deployment
+
+This repository includes a GitHub Actions workflow in `.github/workflows/test.yml` that deploys the app to EC2 over SSH.
+
+### Required GitHub Secret
+
+Create a secret named:
+
+```text
+PRIVATE_SSH_KEY
+```
+
+This should contain the private SSH key for your EC2 instance.
+
+## Deployment Script
+
+The deployment script is located at `deploy.sh`.
+
+It performs the following tasks:
+
+- pulls the latest code from GitHub
+- installs dependencies
+- builds the app
+- restarts the app using PM2
+
+## Notes
+
+- Make sure the repository folder name on EC2 matches the path used in `deploy.sh`.
+- If you want to expose the app on port 80, consider using Nginx as a reverse proxy to `localhost:3000`.
+
+## Project Structure
+
+```text
+.github/workflows/     GitHub Actions deployment workflow
+public/                 Static assets
+src/                    Application source code
+deploy.sh               Deployment script for EC2
+package.json            Project dependencies and scripts
+```
+
+## License
+
+This project is for learning and demonstration purposes.
    
