@@ -16,7 +16,7 @@ jobs:
     - name: Multiple commands  # Step to run deployment commands on your EC2 server
       uses: appleboy/ssh-action@v1  # Use SSH to connect to a remote server
       with:
-        host: 13.233.200.194  # EC2 instance IP address
+        host: 3.111.36.49  # EC2 instance IP address
         username: ubuntu  # Username to log into EC2
         key: ${{ secrets.PRIVATE_SSH_KEY }}  # SSH private key stored in GitHub Secrets
         port: 22  # SSH port (default 22)
